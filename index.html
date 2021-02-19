@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Saklambaç! (Lady Gülşahla!)</title>
+    <link rel="stylesheet" href="./styles.css" type="text/css">
+    <link href="./stylesForApp.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="./button.css" type="text/css>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet" type="text/css">
+
+    <title>Document</title>
+
+
+
+<!--Puzzle's Header To The End-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <meta charset="utf-8" />
+
+    <!-- Welcome to ZIM at http://zimjs.com - Code Interactive Media Pizzazz! 	        -->
+    <!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS http://createjs.com -->
+    <!-- Founded by Inventor Dan Zen - http://danzen.com - Canadian New Media Award Winner 	-->
+    <!-- ZIM is free to use. You can donate to help improve ZIM at http://zimjs.com/donate 	-->
+
+    <script src="https://d309knd7es5f10.cloudfront.net/createjs_1.1_min.js"></script>
+    <script>
+        var zon = true; // set to false to turn off console messages from zim
+        var zns = false; // set to true to require zim namespace - eg. new zim.Frame()
+    </script>
+    <script src="https://d309knd7es5f10.cloudfront.net/zim_6.9.0.js"></script>
+    <!-- use zimjs.com/distill for minified individual functions! -->
+
+    <script>
+        // SCALING OPTIONS
+        // scaling can have values as follows with full being the default
+        // "fit"	sets canvas and stage to dimensions and scales to fit inside window size
+        // "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+        // "full"	sets stage to window size with no scaling
+        // "tagID"	add canvas to HTML tag of ID - set to dimensions if provided - no scaling
+
+        var scaling = "full"; // this will resize to fit inside the screen dimensions
+        var width = 1024;
+        var height = 768;
+        var countPieces = 0;
+        var totalPieces = 0;
+        // as of ZIM 5.5.0 you do not need to put zim before ZIM functions and classes
+        var frame = new Frame(scaling, width, height);
+        frame.on("ready", function()
+        {
+            zog("ready from ZIM Frame"); // logs in console (F12 - choose console)
+
+            var stage = frame.stage;
+            var stageW = frame.width;
+            var stageH = frame.height;
+
+            var puzzleX;
+            var puzzleY;
+            frame.outerColor = "#444";
+            frame.color = "";
+
+            var con = new Container
+
+            // with chaining - can also assign to a variable for later access
+            var imageObj = [];
+            var piecesArrayObj = [];
+            frame.loadAssets(["yelda.jpg"], "assets/");
+
+            var label = new Label({
+               text:"CLICK",
+               size:20,
+               font:"courier",
+               color:"orange",
+               rollColor:"red",
+               fontOptions:"italic bold"
+            });
+            stage.addChild(label);
+            label.x = label.y = 20;
+            label.on("click", function(){zog("clicking");});
+
+
+            frame.on("complete", function() {
+
+
+                imageObj = frame.asset("yelda.jpg").clone();
+                imageObj.addTo(con);
+                imageObj.alpha = 0.2;
+
+                var piecesArray = new Array();
+                var horizontalPieces = 5;
+                var verticalPieces = 4;
+                var obj = getQueryString();
+                zog(obj)
+                if(obj)
+                {
+                   horizontalPieces = obj.row;
+                   verticalPieces = obj.column;
+                }
+                var imageWidth = imageObj.width;
+                var imageHeight = imageObj.height;
+                var pieceWidth = Math.round(imageWidth / horizontalPieces);
+                var pieceHeight = Math.round(imageHeight / verticalPieces);
+                var gap = 40;
+                totalPieces = horizontalPieces*verticalPieces;
+
+                puzzleX = frame.width/2-imageWidth/2;
+                puzzleY = frame.height/2-imageHeight/2;
+                imageObj.pos(puzzleX,puzzleY);
+                zog(puzzleX,puzzleY);
+
+                label.text = "Hi Lady Yelda! Bu M.J.den Küçük Bir Hediye ! Umarım Bilmece Seversin !"+countPieces+"/"+totalPieces;
+
+
+                for (j = 0; j < verticalPieces; j++) {
+                    piecesArrayObj[j] = [];
+                    for (i = 0; i < horizontalPieces; i++) {
+                        var n = j + i * verticalPieces;
+
+                        var offsetX = pieceWidth * i;
+                        var offsetY = pieceHeight * j;
+
+
+                        var x8 = Math.round(pieceWidth / 8);
+                        var y8 = Math.round(pieceHeight / 8);
+
+                        piecesArrayObj[j][i] = new Object();
+                        piecesArrayObj[j][i].right = Math.floor(Math.random() * 2);
+                        piecesArrayObj[j][i].down = Math.floor(Math.random() * 2);
+
+                        if (j > 0) {
+                            piecesArrayObj[j][i].up = 1 - piecesArrayObj[j - 1][i].down;
+                        }
+                        if (i > 0) {
+                            piecesArrayObj[j][i].left = 1 - piecesArrayObj[j][i - 1].right;
+                        }
+
+                        piecesArray[n] = new Rectangle({
+                            width: pieceWidth,
+                            height: pieceHeight,
+
+                        });
+
+
+
+                        var tileObj = piecesArrayObj[j][i];
+                        var s = new Shape
+
+                        var context = s.graphics;
+                        s.drag();
+                        s.mouseChildren = false;
+                        s.addEventListener("pressup", function(e) {
+                            var mc = e.currentTarget;
+
+                            var xx = Math.round(mc.x);
+                            var yy = Math.round(mc.y);
+
+                            if (xx < puzzleX+gap / 2 && xx > puzzleX-gap / 2 && yy < puzzleX+gap / 2 && yy > puzzleY-gap / 2) {
+                                 mc.x = puzzleX;
+                                mc.y = puzzleY;
+                                mc.noDrag();
+                                mc.addTo(mc.parent,0);
+                                mc.mouseChildren = false;
+                                mc.mouseEnabled = false;
+                                mc.hint.visible = false;
+                                countPieces++;
+                                label.text = "Hi Lady Yelda! Bu M.J.den Küçük Bir Hediye ! Umarım Bilmece Seversin !"+countPieces+"/"+totalPieces;
+                                zog("countPieces",countPieces);
+                                if(countPieces == totalPieces)
+                                {
+                                    var pane = new Pane({width:600,label:"This Girl Here Is A Live Example of A Cutie Pie!", height:250, modal:false, displayClose:false});
+
+                                    var confirm = new Button(120, 50, "Bir Daha!", "green").center(pane).mov(0,70);
+
+                                    confirm.on("click", function() {
+                                        pane.hide();
+                                        window.location.replace(window.location.pathname + window.location.search + window.location.hash);
+
+                                    });
+                                    pane.show();
+                                }
+                                stage.update();
+
+                            }
+
+                        });
+                        context.setStrokeStyle(3,"round");
+                        var commandi1 = context.beginStroke(createjs.Graphics.getRGB(0, 0, 0)).command;
+                        //
+                        var commandi = context.beginBitmapFill(imageObj.image).command;
+
+
+                        context.moveTo(offsetX, offsetY);
+
+
+
+
+                        if (j != 0) {
+                            context.lineTo(offsetX + 3 * x8, offsetY);
+                            if (tileObj.up == 1) {
+                                context.curveTo(offsetX + 2 * x8, offsetY - 2 * y8, offsetX + 4 * x8, offsetY - 2 * y8);
+                                context.curveTo(offsetX + 6 * x8, offsetY - 2 * y8, offsetX + 5 * x8, offsetY);
+                            } else {
+                                context.curveTo(offsetX + 2 * x8, offsetY + 2 * y8, offsetX + 4 * x8, offsetY + 2 * y8);
+                                context.curveTo(offsetX + 6 * x8, offsetY + 2 * y8, offsetX + 5 * x8, offsetY);
+                            }
+                        }
+                        context.lineTo(offsetX + 8 * x8, offsetY);
+                        if (i != horizontalPieces - 1) {
+                            context.lineTo(offsetX + 8 * x8, offsetY + 3 * y8);
+                            if (tileObj.right == 1) {
+                                context.curveTo(offsetX + 10 * x8, offsetY + 2 * y8, offsetX + 10 * x8, offsetY + 4 * y8);
+                                context.curveTo(offsetX + 10 * x8, offsetY + 6 * y8, offsetX + 8 * x8, offsetY + 5 * y8);
+                            } else {
+                                context.curveTo(offsetX + 6 * x8, offsetY + 2 * y8, offsetX + 6 * x8, offsetY + 4 * y8);
+                                context.curveTo(offsetX + 6 * x8, offsetY + 6 * y8, offsetX + 8 * x8, offsetY + 5 * y8);
+                            }
+                        }
+                        context.lineTo(offsetX + 8 * x8, offsetY + 8 * y8);
+                        if (j != verticalPieces - 1) {
+                            context.lineTo(offsetX + 5 * x8, offsetY + 8 * y8);
+                            if (tileObj.down == 1) {
+                                context.curveTo(offsetX + 6 * x8, offsetY + 10 * y8, offsetX + 4 * x8, offsetY + 10 * y8);
+                                context.curveTo(offsetX + 2 * x8, offsetY + 10 * y8, offsetX + 3 * x8, offsetY + 8 * y8);
+                            } else {
+                                context.curveTo(offsetX + 6 * x8, offsetY + 6 * y8, offsetX + 4 * x8, offsetY + 6 * y8);
+                                context.curveTo(offsetX + 2 * x8, offsetY + 6 * y8, offsetX + 3 * x8, offsetY + 8 * y8);
+                            }
+                        }
+                        context.lineTo(offsetX, offsetY + 8 * y8);
+                        if (i != 0) {
+                            context.lineTo(offsetX, offsetY + 5 * y8);
+                            if (tileObj.left == 1) {
+                                context.curveTo(offsetX - 2 * x8, offsetY + 6 * y8, offsetX - 2 * x8, offsetY + 4 * y8);
+                                context.curveTo(offsetX - 2 * x8, offsetY + 2 * y8, offsetX, offsetY + 3 * y8);
+                            } else {
+                                context.curveTo(offsetX + 2 * x8, offsetY + 6 * y8, offsetX + 2 * x8, offsetY + 4 * y8);
+                                context.curveTo(offsetX + 2 * x8, offsetY + 2 * y8, offsetX, offsetY + 3 * y8);
+                            }
+                        }
+                        context.lineTo(offsetX, offsetY);
+                        s.addTo(con);
+
+                        var fill = new createjs.Graphics.Fill("red");
+
+                        //var newGra = context.append(fill);
+                        var hint = new Shape();//s.clone(true);
+                        hint.mouseChildren = false;
+                        hint.mouseEnabled = false;
+                        s.hint = hint;
+                        hint.graphics = context.clone(true);
+                        hint.pos(puzzleX,puzzleY);
+                       // newGra.graphics = newGra;
+                        hint.graphics._fill = fill;
+                        hint.graphics._fill.style = null;
+
+                        hint.addTo(con,0);
+                        //s.animate({obj:{x:frame.width-offsetX-pieceWidth,y:frame.height-offsetY-pieceHeight}, time:700});
+                        //s.animate({obj:{x:-offsetX,y:-offsetY}, time:700});
+                        s.animate({obj:{x:rand(-offsetX,frame.width-offsetX-pieceWidth),y:rand(-offsetY,frame.height-offsetY-pieceHeight)}, time:700});
+
+                    }
+                }
+
+
+                con.addTo(stage);
+                /*con.x -= imageWidth/2;
+                con.y -= imageHeight/2;*/
+                stage.update();
+
+
+
+            }); // end asset complete
+
+
+            stage.update(); // this is needed to show any changes
+
+        }); // end of ready
+    </script>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+    <script src="./confetti.js"></script>
+
+    <canvas id="sakura"></canvas>
+    <div class="btnbg">
+    
+
+ 
+   
+
+
+
+      
+    </div>
+    
+    
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="./index.js"></script>
+    <script src="./button.js"></script>
+    <script type="text/javascript" src="script.js"></script> 
+
+
+
+
+
+
+
+    <div class="audio">
+        <!-- canvas with id="myCanvas" is made by zim Frame -->
+        <audio id="yanni" controls autoplay>
+            <source src='./assets/yanni.mp3' type="audio/mp3">
+            
+          Your browser does not support the audio element.
+          </audio>
+    </div>
+    
+    <!-- sakura shader -->
+    <script id="sakura_point_vsh" type="x-shader/x_vertex">
+    uniform mat4 uProjection;
+    uniform mat4 uModelview;
+    uniform vec3 uResolution;
+    uniform vec3 uOffset;
+    uniform vec3 uDOF;  //x:focus distance, y:focus radius, z:max radius
+    uniform vec3 uFade; //x:start distance, y:half distance, z:near fade start
+    
+    attribute vec3 aPosition;
+    attribute vec3 aEuler;
+    attribute vec2 aMisc; //x:size, y:fade
+    
+    varying vec3 pposition;
+    varying float psize;
+    varying float palpha;
+    varying float pdist;
+    
+    //varying mat3 rotMat;
+    varying vec3 normX;
+    varying vec3 normY;
+    varying vec3 normZ;
+    varying vec3 normal;
+    
+    varying float diffuse;
+    varying float specular;
+    varying float rstop;
+    varying float distancefade;
+    
+    void main(void) {
+        // Projection is based on vertical angle
+        vec4 pos = uModelview * vec4(aPosition + uOffset, 1.0);
+        gl_Position = uProjection * pos;
+        gl_PointSize = aMisc.x * uProjection[1][1] / -pos.z * uResolution.y * 0.5;
+        
+        pposition = pos.xyz;
+        psize = aMisc.x;
+        pdist = length(pos.xyz);
+        palpha = smoothstep(0.0, 1.0, (pdist - 0.1) / uFade.z);
+        
+        vec3 elrsn = sin(aEuler);
+        vec3 elrcs = cos(aEuler);
+        mat3 rotx = mat3(
+            1.0, 0.0, 0.0,
+            0.0, elrcs.x, elrsn.x,
+            0.0, -elrsn.x, elrcs.x
+        );
+        mat3 roty = mat3(
+            elrcs.y, 0.0, -elrsn.y,
+            0.0, 1.0, 0.0,
+            elrsn.y, 0.0, elrcs.y
+        );
+        mat3 rotz = mat3(
+            elrcs.z, elrsn.z, 0.0, 
+            -elrsn.z, elrcs.z, 0.0,
+            0.0, 0.0, 1.0
+        );
+        mat3 rotmat = rotx * roty * rotz;
+        normal = rotmat[2];
+        
+        mat3 trrotm = mat3(
+            rotmat[0][0], rotmat[1][0], rotmat[2][0],
+            rotmat[0][1], rotmat[1][1], rotmat[2][1],
+            rotmat[0][2], rotmat[1][2], rotmat[2][2]
+        );
+        normX = trrotm[0];
+        normY = trrotm[1];
+        normZ = trrotm[2];
+        
+        const vec3 lit = vec3(0.6917144638660746, 0.6917144638660746, -0.20751433915982237);
+        
+        float tmpdfs = dot(lit, normal);
+        if(tmpdfs < 0.0) {
+            normal = -normal;
+            tmpdfs = dot(lit, normal);
+        }
+        diffuse = 0.4 + tmpdfs;
+        
+        vec3 eyev = normalize(-pos.xyz);
+        if(dot(eyev, normal) > 0.0) {
+            vec3 hv = normalize(eyev + lit);
+            specular = pow(max(dot(hv, normal), 0.0), 20.0);
+        }
+        else {
+            specular = 0.0;
+        }
+        
+        rstop = clamp((abs(pdist - uDOF.x) - uDOF.y) / uDOF.z, 0.0, 1.0);
+        rstop = pow(rstop, 0.5);
+        //-0.69315 = ln(0.5)
+        distancefade = min(1.0, exp((uFade.x - pdist) * 0.69315 / uFade.y));
+    }
+    </script>
+    <script id="sakura_point_fsh" type="x-shader/x_fragment">
+    #ifdef GL_ES
+    //precision mediump float;
+    precision highp float;
+    #endif
+    
+    uniform vec3 uDOF;  //x:focus distance, y:focus radius, z:max radius
+    uniform vec3 uFade; //x:start distance, y:half distance, z:near fade start
+    
+    const vec3 fadeCol = vec3(0.08, 0.03, 0.06);
+    
+    varying vec3 pposition;
+    varying float psize;
+    varying float palpha;
+    varying float pdist;
+    
+    //varying mat3 rotMat;
+    varying vec3 normX;
+    varying vec3 normY;
+    varying vec3 normZ;
+    varying vec3 normal;
+    
+    varying float diffuse;
+    varying float specular;
+    varying float rstop;
+    varying float distancefade;
+    
+    float ellipse(vec2 p, vec2 o, vec2 r) {
+        vec2 lp = (p - o) / r;
+        return length(lp) - 1.0;
+    }
+    
+    void main(void) {
+        vec3 p = vec3(gl_PointCoord - vec2(0.5, 0.5), 0.0) * 2.0;
+        vec3 d = vec3(0.0, 0.0, -1.0);
+        float nd = normZ.z; //dot(-normZ, d);
+        if(abs(nd) < 0.0001) discard;
+        
+        float np = dot(normZ, p);
+        vec3 tp = p + d * np / nd;
+        vec2 coord = vec2(dot(normX, tp), dot(normY, tp));
+        
+        //angle = 15 degree
+        const float flwrsn = 0.258819045102521;
+        const float flwrcs = 0.965925826289068;
+        mat2 flwrm = mat2(flwrcs, -flwrsn, flwrsn, flwrcs);
+        vec2 flwrp = vec2(abs(coord.x), coord.y) * flwrm;
+        
+        float r;
+        if(flwrp.x < 0.0) {
+            r = ellipse(flwrp, vec2(0.065, 0.024) * 0.5, vec2(0.36, 0.96) * 0.5);
+        }
+        else {
+            r = ellipse(flwrp, vec2(0.065, 0.024) * 0.5, vec2(0.58, 0.96) * 0.5);
+        }
+        
+        if(r > rstop) discard;
+        
+        vec3 col = mix(vec3(1.0, 0.8, 0.75), vec3(1.0, 0.9, 0.87), r);
+        float grady = mix(0.0, 1.0, pow(coord.y * 0.5 + 0.5, 0.35));
+        col *= vec3(1.0, grady, grady);
+        col *= mix(0.8, 1.0, pow(abs(coord.x), 0.3));
+        col = col * diffuse + specular;
+        
+        col = mix(fadeCol, col, distancefade);
+        
+        float alpha = (rstop > 0.001)? (0.5 - r / (rstop * 2.0)) : 1.0;
+        alpha = smoothstep(0.0, 1.0, alpha) * palpha;
+        
+        gl_FragColor = vec4(col * 0.5, alpha);
+    }
+    </script>
+    <!-- effects -->
+    <script id="fx_common_vsh" type="x-shader/x_vertex">
+    uniform vec3 uResolution;
+    attribute vec2 aPosition;
+    
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    
+    void main(void) {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+        texCoord = aPosition.xy * 0.5 + vec2(0.5, 0.5);
+        screenCoord = aPosition.xy * vec2(uResolution.z, 1.0);
+    }
+    </script>
+    <script id="bg_fsh" type="x-shader/x_fragment">
+    #ifdef GL_ES
+    //precision mediump float;
+    precision highp float;
+    #endif
+    
+    uniform vec2 uTimes;
+    
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    
+    void main(void) {
+        vec3 col;
+        float c;
+        vec2 tmpv = texCoord * vec2(0.8, 1.0) - vec2(0.95, 1.0);
+        c = exp(-pow(length(tmpv) * 1.8, 2.0));
+        col = mix(vec3(0.02, 0.0, 0.03), vec3(0.96, 0.98, 1.0) * 1.5, c);
+        gl_FragColor = vec4(col * 0.5, 1.0);
+    }
+    </script>
+    <script id="fx_brightbuf_fsh" type="x-shader/x_fragment">
+    #ifdef GL_ES
+    //precision mediump float;
+    precision highp float;
+    #endif
+    uniform sampler2D uSrc;
+    uniform vec2 uDelta;
+    
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    
+    void main(void) {
+        vec4 col = texture2D(uSrc, texCoord);
+        gl_FragColor = vec4(col.rgb * 2.0 - vec3(0.5), 1.0);
+    }
+    </script>
+    <script id="fx_dirblur_r4_fsh" type="x-shader/x_fragment">
+    #ifdef GL_ES
+    //precision mediump float;
+    precision highp float;
+    #endif
+    uniform sampler2D uSrc;
+    uniform vec2 uDelta;
+    uniform vec4 uBlurDir; //dir(x, y), stride(z, w)
+    
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    
+    void main(void) {
+        vec4 col = texture2D(uSrc, texCoord);
+        col = col + texture2D(uSrc, texCoord + uBlurDir.xy * uDelta);
+        col = col + texture2D(uSrc, texCoord - uBlurDir.xy * uDelta);
+        col = col + texture2D(uSrc, texCoord + (uBlurDir.xy + uBlurDir.zw) * uDelta);
+        col = col + texture2D(uSrc, texCoord - (uBlurDir.xy + uBlurDir.zw) * uDelta);
+        gl_FragColor = col / 5.0;
+    }
+    </script>
+    <!-- effect fragment shader template -->
+    <script id="fx_common_fsh" type="x-shader/x_fragment">
+    #ifdef GL_ES
+    //precision mediump float;
+    precision highp float;
+    #endif
+    uniform sampler2D uSrc;
+    uniform vec2 uDelta;
+    
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    
+    void main(void) {
+        gl_FragColor = texture2D(uSrc, texCoord);
+    }
+    </script>
+    <!-- post processing -->
+    <script id="pp_final_vsh" type="x-shader/x_vertex">
+    uniform vec3 uResolution;
+    attribute vec2 aPosition;
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    void main(void) {
+        gl_Position = vec4(aPosition, 0.0, 1.0);
+        texCoord = aPosition.xy * 0.5 + vec2(0.5, 0.5);
+        screenCoord = aPosition.xy * vec2(uResolution.z, 1.0);
+    }
+    </script>
+    <script id="pp_final_fsh" type="x-shader/x_fragment">
+    #ifdef GL_ES
+    //precision mediump float;
+    precision highp float;
+    #endif
+    uniform sampler2D uSrc;
+    uniform sampler2D uBloom;
+    uniform vec2 uDelta;
+    varying vec2 texCoord;
+    varying vec2 screenCoord;
+    void main(void) {
+        vec4 srccol = texture2D(uSrc, texCoord) * 2.0;
+        vec4 bloomcol = texture2D(uBloom, texCoord);
+        vec4 col;
+        col = srccol + bloomcol * (vec4(1.0) + srccol);
+        col *= smoothstep(1.0, 0.0, pow(length((texCoord - vec2(0.5)) * 2.0), 1.2) * 0.5);
+        col = pow(col, vec4(0.45454545454545)); //(1.0 / 2.2)
+        
+        gl_FragColor = vec4(col.rgb, 1.0);
+        gl_FragColor.a = 1.0;
+    }
+    </script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
